@@ -57,14 +57,24 @@ const availableDocuments = [
     color: 'from-red-500 to-red-600',
     icon: <Phone className="w-8 h-8" />,
     searches: '5k+'
+  },
+  // New entry for Nearest Office Locator
+  { 
+    key: 'nearest_office', 
+    titles: ['أقرب إدارة', 'موقع الإدارات', 'مكان الإدارة', 'nearest office', 'locator', 'map'],
+    titleAr: 'أقرب إدارة (تحديد الموقع)',
+    titleFr: 'Nearest Office Locator',
+    color: 'from-amber-500 to-orange-600',
+    icon: <MapPin className="w-8 h-8" />,
+    searches: '3k+'
   }
 ];
 
 // الوثائق التي لديها صفحات مفصلة حالياً
-const searchableKeys = ['cnie', 'passport', 'acte_naissance'];
+const searchableKeys = ['cnie', 'passport', 'acte_naissance', 'nearest_office'];
 
 
-export default function Homepage({ onNavigate }) {
+export default function Homepage({ onNavigate, views }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]); // New state for suggestions
 
@@ -76,10 +86,10 @@ export default function Homepage({ onNavigate }) {
   }));
 
   const quickLinks = [
-    { title: 'الوثائق المطلوبة', icon: <FileText className="w-5 h-5" /> },
-    { title: 'أقرب إدارة', icon: <MapPin className="w-5 h-5" /> },
-    { title: 'حاسبة الرسوم', icon: <CreditCard className="w-5 h-5" /> },
-    { title: 'مواعيد العمل', icon: <Clock className="w-5 h-5" /> }
+    { title: 'الوثائق المطلوبة', icon: <FileText className="w-5 h-5" />, key: 'cnie' },
+    { title: 'أقرب إدارة', icon: <MapPin className="w-5 h-5" />, key: 'nearest_office' },
+    { title: 'حاسبة الرسوم', icon: <CreditCard className="w-5 h-5" />, key: 'cnie' },
+    { title: 'مواعيد العمل', icon: <Clock className="w-5 h-5" />, key: 'cnie' }
   ];
 
   const recentGuides = [
@@ -123,7 +133,8 @@ export default function Homepage({ onNavigate }) {
 
   // دالة للتنقل عند النقر على الاقتراح
   const handleSuggestionClick = (key) => {
-    if (searchableKeys.includes(key)) {
+    // Note: I'm checking against the VIEWS object keys passed from App.js for navigation
+    if (Object.values(views).includes(key)) {
         onNavigate(key);
     } else {
         alert(`عفواً، لا تتوفر صفحة تفصيلية لـ ${availableDocuments.find(doc => doc.key === key)?.titleAr || key} بعد.`);
@@ -217,11 +228,13 @@ export default function Homepage({ onNavigate }) {
           )}
         </div>
 
-        {/* Quick Links (No change) */}
+        {/* Quick Links */}
         <div className="flex flex-wrap justify-center gap-3 mb-16">
           {quickLinks.map((link, index) => (
             <button
               key={index}
+              // Use the key to navigate to the respective page (or default 'cnie' for placeholders)
+              onClick={() => onNavigate(link.key)}
               className="flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border border-gray-200 hover:border-green-500 hover:bg-green-50 transition-all shadow-sm"
             >
               {link.icon}
@@ -230,7 +243,7 @@ export default function Homepage({ onNavigate }) {
           ))}
         </div>
 
-        {/* Popular Services (No change) */}
+        {/* Popular Services (Only showing first 6 for visual consistency, Nearest Office is not considered "popular" yet) */}
         <div className="mb-16">
           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <span className="text-2xl">🔥</span>

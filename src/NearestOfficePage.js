@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
-import { ArrowRight, MapPin, Search, Home, CreditCard, Users, Gavel, Clock, Phone, Globe, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, MapPin, Search, Home, CreditCard, Users, Gavel, Clock, Phone, ChevronRight, FileText, LocateFixed, AlertCircle } from 'lucide-react';
 
 // =============================================================
 // MOCK DATA: البيانات المستخلصة من التحليل (دراسة حالة سطات)
 // =============================================================
 
-const mockLocations =,
+const mockLocations = [
+    {
+        id: 'SETTAT_ANCFCC_TITLE',
+        agency: 'ANCFCC',
+        subTypeAr: 'المحافظة العقارية (التسجيل) - سطات',
+        serviceKeys: ['property_title'],
         addressAr: 'الحي الإداري، سطات، ص.ب 598',
         contactPhone: '06 60 10 28 46',
         workingHours: '08:30 - 16:30',
@@ -27,7 +32,7 @@ const mockLocations =,
         color: 'teal',
         latitude: 33.001,
         longitude: -7.608,
-        linkKey: 'property_title' 
+        linkKey: 'property_title'
     },
     {
         id: 'SETTAT_DGSN_CNIE',
@@ -63,7 +68,7 @@ const mockLocations =,
         subTypeAr: 'مكتب الحالة المدنية (المقاطعة 1)',
         serviceKeys: ['acte_deces', 'acte_naissance', 'residence'],
         addressAr: 'المقاطعة الإدارية رقم 1، حي النور',
-        contactPhone: '05 23 72 13 63', 
+        contactPhone: '05 23 72 13 63',
         workingHours: '08:30 - 16:00',
         icon: <Users className="w-5 h-5" />,
         color: 'orange',
@@ -83,29 +88,159 @@ const serviceOptions = [
 ];
 
 export default function NearestOfficePage({ onBack }) {
-    const = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
     const [filterKey, setFilterKey] = useState('all');
-    const = useState(mockLocations);
+    const [selectedOffice, setSelectedOffice] = useState(mockLocations[0]);
+    // REAL GEOLOCATION STATE
+    const [userLocation, setUserLocation] = useState(null); // { lat, lng }
+    const [locationError, setLocationError] = useState(null); // 'Permission denied' | 'Unavailable' | null
+    const [isLocating, setIsLocating] = useState(false);
 
-    // تطبيق الفلترة والبحث
+    // Function to get real user location
+    const getUserLocation = () => {
+        if (!('geolocation' in navigator)) {
+            setLocationError('Geolocation not supported by this browser.');
+            return;
+        }
+
+        setIsLocating(true);
+        setLocationError(null);
+
+        // This triggers the actual browser location prompt
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setUserLocation({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                });
+                setIsLocating(false);
+            },
+            (error) => {
+                if (error.code === error.PERMISSION_DENIED) {
+                    setLocationError('Location access denied by user. Please enable it in your browser settings.');
+                } else {
+                    setLocationError('Error getting location: ' + error.message);
+                }
+                setIsLocating(false);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    };
+
+    // Attempt to get location on mount (This is what triggers the browser prompt)
+    useEffect(() => {
+        getUserLocation();
+    }, []);
+
+    // Filter logic remains the same
     const filteredLocations = mockLocations.filter(location => {
-        const matchesFilter = filterKey === 'all' |
-
-| location.serviceKeys.includes(filterKey);
-        const matchesSearch = location.subTypeAr.includes(searchTerm) |
-
-| location.addressAr.includes(searchTerm);
+        const matchesFilter = filterKey === 'all' || location.serviceKeys.includes(filterKey);
+        // Note: I'm converting Arabic to lowercase to improve search results
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        const matchesSearch = location.subTypeAr.toLowerCase().includes(lowerSearchTerm) || 
+                            location.addressAr.toLowerCase().includes(lowerSearchTerm);
         return matchesFilter && matchesSearch;
     });
-    
-    // محاكاة لـ Quick Info Card لكي تتوافق مع تصميم الصفحات الأخرى
-    const quickInfo = selectedOffice? :;
 
+    // Quick Info generation remains the same
+    const quickInfo = [
+        { label: 'الجهة المختصة', value: selectedOffice?.agency || 'غير متوفر', icon: 'FileText', color: selectedOffice?.color || 'gray' },
+        { label: 'رقم الاتصال', value: selectedOffice?.contactPhone || 'غير متوفر', icon: 'Phone', color: selectedOffice?.color || 'gray' },
+        { label: 'ساعات العمل', value: selectedOffice?.workingHours || 'غير متوفر', icon: 'Clock', color: selectedOffice?.color || 'gray' },
+        { label: 'العنوان المفصل', value: selectedOffice?.addressAr || 'غير متوفر', icon: 'MapPin', color: selectedOffice?.color || 'gray' }
+    ];
 
-    // وظيفة للتعامل مع النقر على زر التوجيه (محاكاة)
+    // Function to handle map navigation
     const handleNavigate = () => {
-        alert(`جاري توجيهك إلى ${selectedOffice.subTypeAr} عبر تطبيق الملاحة...`);
+        if (!selectedOffice?.latitude || !selectedOffice?.longitude) {
+            alert('عفواً، لا تتوفر معلومات جغرافية كافية لهذا الموقع.');
+            return;
+        }
+
+        const destLat = selectedOffice.latitude;
+        const destLng = selectedOffice.longitude;
+        let mapUrl = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}`;
+        
+        // Add origin if user location is available
+        if (userLocation) {
+            const origin = `${userLocation.lat},${userLocation.lng}`;
+            mapUrl = `${mapUrl}&origin=${origin}`;
+        }
+        
+        window.open(mapUrl, '_blank');
     };
+
+    const MapComponent = () => {
+        const officeCoords = selectedOffice ? `${selectedOffice.latitude},${selectedOffice.longitude}` : null;
+        // Center map on user location, or selected office, or Settat if neither is available
+        const centerLat = userLocation ? userLocation.lat : selectedOffice.latitude || 33.00;
+        const centerLng = userLocation ? userLocation.lng : selectedOffice.longitude || -7.61;
+        
+        // Google Maps Embed API is the simplest way to display a dynamic map without external packages
+        const mapEmbedUrl = `https://maps.google.com/maps?q=${centerLat},${centerLng}&z=13&output=embed`;
+
+        if (isLocating) {
+            return (
+                <div className="flex flex-col items-center justify-center p-8 text-center h-full w-full">
+                    <Clock className="w-10 h-10 text-blue-500 animate-spin mb-4" />
+                    <p className="text-xl font-semibold text-gray-800">جاري تحديد موقعك...</p>
+                </div>
+            );
+        }
+
+        if (locationError && !userLocation) {
+            return (
+                <div className="flex flex-col items-center justify-center p-8 text-center h-full w-full">
+                    <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
+                    <p className="text-xl font-semibold text-gray-800 mb-4">تعذر تحديد الموقع</p>
+                    <p className="text-sm text-gray-600 mb-6">
+                        {locationError}
+                    </p>
+                    <button
+                        onClick={getUserLocation}
+                        className="flex items-center gap-2 bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-red-700 transition-colors"
+                    >
+                        <LocateFixed className="w-5 h-5" />
+                        إعادة المحاولة
+                    </button>
+                    <p className="text-sm text-gray-500 mt-4">
+                        (يُرجى التأكد من منح المتصفح صلاحية تحديد الموقع)
+                    </p>
+                </div>
+            );
+        }
+
+        // RENDER THE EMBEDDED MAP
+        return (
+            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                <iframe
+                    title="Office Location Map"
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    style={{ border: 0, borderRadius: '1rem' }}
+                    src={mapEmbedUrl}
+                    allowFullScreen
+                    aria-hidden="false"
+                    tabIndex="0"
+                />
+                <div className="absolute top-4 right-4 bg-white p-3 rounded-lg shadow-md text-sm text-gray-800" dir="rtl">
+                    {userLocation ? (
+                        <>
+                            <MapPin className="w-4 h-4 inline ml-2 text-green-600" />
+                            <span>موقعك: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}</span>
+                        </>
+                    ) : (
+                        <>
+                            <MapPin className="w-4 h-4 inline ml-2 text-gray-500" />
+                            <span>تمثيل موقع الإدارة</span>
+                        </>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
 
     return (
         <div className="min-h-screen bg-gray-50" dir="rtl">
@@ -141,15 +276,22 @@ export default function NearestOfficePage({ onBack }) {
                             <h2 className="text-lg font-bold text-gray-900 mb-4">حدد نوع الخدمة المطلوبة:</h2>
                             <div className="grid grid-cols-2 gap-3">
                                 {serviceOptions.map(option => (
-                                    <button
-                                        key={option.key}
-                                        onClick={() => setFilterKey(option.key === filterKey? 'all' : option.key)}
-                                        className={`flex items-center gap-2 p-3 rounded-lg border transition-all duration-200 
-                                            ${filterKey === option.key? `bg-${option.color}-600 text-white border-${option.color}-600 shadow-md` : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'}`}
-                                    >
-                                        {React.cloneElement(option.icon, { className: `w-5 h-5 ${filterKey === option.key? 'text-white' : `text-${option.color}-600`}` })}
-                                        <span className="text-sm font-medium">{option.label}</span>
-                                    </button>
+<button
+    key={option.key}
+    onClick={() => setFilterKey(option.key === filterKey? 'all' : option.key)}
+    className={`flex items-center gap-2 p-3 rounded-lg border transition-all duration-200 
+        ${filterKey === option.key
+            ? `bg-${option.color}-600 border-${option.color}-600 shadow-md` // تم إزالة text-white من هنا
+            : 'bg-gray-100 border-gray-200 hover:bg-gray-200' // تم إزالة text-gray-700 من هنا
+        }`}
+>
+    {/* لون الأيقونة: أبيض عند التحديد، ولون الفئة عند عدم التحديد */}
+    {React.cloneElement(option.icon, { 
+        className: `w-5 h-5 ${filterKey === option.key ? 'text-white' : `text-${option.color}-600`}` 
+    })}
+    {/* لون النص: أبيض عند التحديد، ورمادي عند عدم التحديد */}
+    <span className={`text-sm font-medium ${filterKey === option.key ? 'text-white' : 'text-gray-700'}`}>{option.label}</span>
+</button>
                                 ))}
                             </div>
                         </div>
@@ -198,10 +340,9 @@ export default function NearestOfficePage({ onBack }) {
 
                     {/* Left Column: Map & Quick Info Card */}
                     <div className="lg:col-span-2 space-y-6 mt-8 lg:mt-0">
-                        {/* Map Placeholder */}
+                        {/* Map Component */}
                         <div className="bg-gray-200 h-96 rounded-2xl shadow-xl flex items-center justify-center text-gray-500 text-xl font-bold border border-gray-300">
-                            {/* Placeholder for Interactive Map */}
-                            خريطة تفاعلية (تمثيل جغرافي لموقع {selectedOffice? selectedOffice.subTypeAr : 'الإدارة المختارة'})
+                            <MapComponent />
                         </div>
 
                         {/* Quick Info Card - Replicating Existing Design */}
@@ -212,17 +353,19 @@ export default function NearestOfficePage({ onBack }) {
                                     {quickInfo.map((info, index) => {
                                         // Using conditional icon rendering as in other detail pages
                                         const IconComponent = ({ name, color }) => {
-                                            if (name === 'Phone') return <Phone className={`w-5 h-5 text-green-600`} />; 
-                                            if (name === 'Clock') return <Clock className={`w-5 h-5 text-blue-600`} />;
-                                            if (name === 'FileText') return <FileText className={`w-5 h-5 text-${info.color}-600`} />;
-                                            if (name === 'MapPin') return <MapPin className={`w-5 h-5 text-orange-600`} />;
+                                            const iconClass = `w-5 h-5 text-${color}-600`;
+                                            if (name === 'Phone') return <Phone className={iconClass} />; 
+                                            if (name === 'Clock') return <Clock className={iconClass} />;
+                                            if (name === 'FileText') return <FileText className={iconClass} />;
+                                            if (name === 'MapPin') return <MapPin className={iconClass} />;
                                             return null;
                                         };
 
                                         return (
                                             <div key={index} className="bg-gray-50 rounded-xl p-4 shadow-sm border border-gray-100 text-center">
                                                 <div className="flex items-center justify-center gap-2 mb-2">
-                                                    <IconComponent name={info.icon} color={info.color} />
+                                                    {/* Pass color dynamically for Tailwind to pick up pre-defined classes */}
+                                                    <IconComponent name={info.icon} color={selectedOffice.color} /> 
                                                     <p className="font-bold text-gray-900 text-sm">{info.label}</p>
                                                 </div>
                                                 <p className="text-sm text-gray-600">{info.value}</p>
@@ -238,7 +381,7 @@ export default function NearestOfficePage({ onBack }) {
                                         className="flex-1 bg-red-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
                                     >
                                         <MapPin className="w-5 h-5" />
-                                        التوجيه إلى الموقع (عبر Waze/Google Maps)
+                                        التوجيه إلى الموقع (عبر خرائط Google)
                                     </button>
                                     <a 
                                         href={`tel:${selectedOffice.contactPhone}`}
