@@ -11,7 +11,7 @@ export default function Homepage({ onNavigate }) {
       titleFr: 'Carte d\'identité',
       color: 'from-blue-500 to-blue-600',
       searches: '12k+',
-      key: 'cnie' // Added identifier for navigation
+      key: 'cnie'
     },
     {
       icon: <FileText className="w-8 h-8" />,
@@ -148,7 +148,7 @@ export default function Homepage({ onNavigate }) {
               <div
                 key={index}
                 className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100 hover:border-green-200 group"
-                onClick={() => service.key && onNavigate(service.key)} // Added onClick handler
+                onClick={() => service.key && onNavigate(service.key)}
               >
                 <div className={`w-16 h-16 bg-gradient-to-br ${service.color} rounded-xl flex items-center justify-center mb-4 text-white group-hover:scale-110 transition-transform shadow-lg`}>
                   {service.icon}
