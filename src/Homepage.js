@@ -1,54 +1,79 @@
 import React, { useState } from 'react';
 import { Search, FileText, CreditCard, Car, Home, Users, Phone, MapPin, Clock, ChevronRight } from 'lucide-react';
 
+// قائمة بالوثائق المتاحة وكلماتها المفتاحية لتمكين البحث المرن
+const availableDocuments = [
+  { 
+    key: 'cnie', 
+    titles: ['بطاقة التعريف', 'بطاقة التعريف الوطنية', 'carte d\'identité', 'cnie', 'بطاقة', 'تعريف', 'وطنية'],
+    titleAr: 'بطاقة التعريف الوطنية',
+    titleFr: "Carte d'identité nationale",
+    color: 'from-blue-500 to-blue-600',
+    icon: <CreditCard className="w-8 h-8" />,
+    searches: '12k+'
+  },
+  { 
+    key: 'passport', 
+    titles: ['جواز السفر', 'جواز السفر البيومتري', 'passeport', 'سفر', 'جواز', 'بيومتري'],
+    titleAr: 'جواز السفر البيومتري',
+    titleFr: 'Passeport Biométrique',
+    color: 'from-green-500 to-green-600',
+    icon: <FileText className="w-8 h-8" />,
+    searches: '8.5k+'
+  },
+  { 
+    key: 'acte_naissance', 
+    titles: ['عقد الميلاد', 'شهادة الميلاد', 'acte de naissance', 'ميلاد', 'ازدياد', 'عقد', 'نسخة كاملة'],
+    titleAr: 'عقد/شهادة الميلاد',
+    titleFr: 'Acte de naissance',
+    color: 'from-pink-500 to-pink-600',
+    icon: <Users className="w-8 h-8" />,
+    searches: '7k+'
+  },
+  // خدمات أخرى (للبحث فقط حتى يتم إنشاء صفحاتها)
+  { 
+    key: 'permis_conduire', 
+    titles: ['رخصة السياقة', 'permis de conduire', 'سياقة', 'رخصة'],
+    titleAr: 'رخصة السياقة',
+    titleFr: 'Permis de conduire',
+    color: 'from-purple-500 to-purple-600',
+    icon: <Car className="w-8 h-8" />,
+    searches: '10k+'
+  },
+  { 
+    key: 'residence', 
+    titles: ['شهادة السكنى', 'certificat de résidence', 'سكنى', 'إقامة'],
+    titleAr: 'شهادة السكنى',
+    titleFr: 'Certificat de résidence',
+    color: 'from-orange-500 to-orange-600',
+    icon: <Home className="w-8 h-8" />,
+    searches: '6k+'
+  },
+  { 
+    key: 'ramed', 
+    titles: ['الرميد', 'ramed', 'assurance médicale'],
+    titleAr: 'الرميد RAMED',
+    titleFr: 'Assistance médicale',
+    color: 'from-red-500 to-red-600',
+    icon: <Phone className="w-8 h-8" />,
+    searches: '5k+'
+  }
+];
+
+// الوثائق التي لديها صفحات مفصلة حالياً
+const searchableKeys = ['cnie', 'passport', 'acte_naissance'];
+
+
 export default function Homepage({ onNavigate }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]); // New state for suggestions
 
-  const popularServices = [
-    {
-      icon: <CreditCard className="w-8 h-8" />,
-      title: 'بطاقة التعريف',
-      titleFr: 'Carte d\'identité',
-      color: 'from-blue-500 to-blue-600',
-      searches: '12k+',
-      key: 'cnie'
-    },
-    {
-      icon: <FileText className="w-8 h-8" />,
-      title: 'جواز السفر',
-      titleFr: 'Passeport',
-      color: 'from-green-500 to-green-600',
-      searches: '8.5k+'
-    },
-    {
-      icon: <Car className="w-8 h-8" />,
-      title: 'رخصة السياقة',
-      titleFr: 'Permis de conduire',
-      color: 'from-purple-500 to-purple-600',
-      searches: '10k+'
-    },
-    {
-      icon: <Home className="w-8 h-8" />,
-      title: 'شهادة السكنى',
-      titleFr: 'Certificat de résidence',
-      color: 'from-orange-500 to-orange-600',
-      searches: '6k+'
-    },
-    {
-      icon: <Users className="w-8 h-8" />,
-      title: 'شهادة الازدياد',
-      titleFr: 'Acte de naissance',
-      color: 'from-pink-500 to-pink-600',
-      searches: '7k+'
-    },
-    {
-      icon: <Phone className="w-8 h-8" />,
-      title: 'الرميد RAMED',
-      titleFr: 'Assistance médicale',
-      color: 'from-red-500 to-red-600',
-      searches: '5k+'
-    }
-  ];
+  // نستخدم أول 6 وثائق فقط للعرض في قسم الخدمات الأكثر طلباً
+  const popularServices = availableDocuments.slice(0, 6).map(doc => ({
+    ...doc,
+    title: doc.titleAr,
+    icon: doc.icon
+  }));
 
   const quickLinks = [
     { title: 'الوثائق المطلوبة', icon: <FileText className="w-5 h-5" /> },
@@ -74,10 +99,54 @@ export default function Homepage({ onNavigate }) {
       views: '3.1k'
     }
   ];
+  
+  // دالة لمعالجة التغيير في شريط البحث وإظهار الاقتراحات
+  const handleInputChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    if (query.trim().length > 0) {
+      const lowerQuery = query.toLowerCase().trim();
+      const filteredSuggestions = availableDocuments
+        .filter(doc => 
+          doc.titles.some(title => title.toLowerCase().includes(lowerQuery)) || 
+          doc.titleFr.toLowerCase().includes(lowerQuery)
+        )
+        // عرض 5 اقتراحات كحد أقصى
+        .slice(0, 5); 
+      
+      setSuggestions(filteredSuggestions);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  // دالة للتنقل عند النقر على الاقتراح
+  const handleSuggestionClick = (key) => {
+    if (searchableKeys.includes(key)) {
+        onNavigate(key);
+    } else {
+        alert(`عفواً، لا تتوفر صفحة تفصيلية لـ ${availableDocuments.find(doc => doc.key === key)?.titleAr || key} بعد.`);
+        setSuggestions([]);
+        setSearchQuery('');
+    }
+  };
+
+  // دالة لمعالجة ضغط زر Enter (البحث الرئيسي)
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (suggestions.length > 0) {
+        // إذا كان هناك اقتراحات، نذهب إلى أول نتيجة
+        handleSuggestionClick(suggestions[0].key);
+    } else {
+        alert(`عفواً، لم يتم العثور على نتائج مطابقة لـ "${searchQuery}". الرجاء المحاولة بكلمة مختلفة.`);
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50" dir="rtl">
-      {/* Header */}
+      {/* Header (No change) */}
       <header className="bg-white shadow-sm border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -99,7 +168,7 @@ export default function Homepage({ onNavigate }) {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section (No change) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -110,21 +179,45 @@ export default function Homepage({ onNavigate }) {
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="max-w-3xl mx-auto mb-8">
-          <div className="relative">
+        {/* Search Bar with Suggestions */}
+        <div className="max-w-3xl mx-auto mb-8 relative">
+          <form onSubmit={handleSearch} className="relative">
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث على أي إجراء إداري... (مثلاً: بطاقة التعريف، جواز السفر...)"
+              onChange={handleInputChange} // Use the new handler
+              placeholder="ابحث على أي إجراء إداري... (مثلاً: بطاقة، جواز، ميلاد...)"
               className="w-full px-6 py-5 pr-14 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:outline-none shadow-lg text-lg"
             />
-            <Search className="absolute right-5 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
-          </div>
+            <button type="submit" className="absolute right-0 top-0 h-full px-4 rounded-r-2xl text-gray-400 hover:text-green-600">
+                <Search className="w-6 h-6" />
+            </button>
+          </form>
+
+          {/* Suggestions Dropdown */}
+          {suggestions.length > 0 && (
+            <div className="absolute top-full w-full bg-white rounded-xl shadow-xl mt-2 z-10 border border-gray-100 overflow-hidden">
+              {suggestions.map((doc) => (
+                <div
+                  key={doc.key}
+                  onClick={() => handleSuggestionClick(doc.key)}
+                  className="flex items-center justify-between p-4 cursor-pointer hover:bg-green-50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className={`w-5 h-5 ${searchableKeys.includes(doc.key) ? 'text-green-600' : 'text-gray-400'}`} />
+                    <div>
+                      <p className="font-medium text-gray-900">{doc.titleAr}</p>
+                      <p className="text-xs text-gray-500">{doc.titleFr}</p>
+                    </div>
+                  </div>
+                  <ChevronRight className={`w-5 h-5 ${searchableKeys.includes(doc.key) ? 'text-green-600' : 'text-gray-400'}`} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Quick Links */}
+        {/* Quick Links (No change) */}
         <div className="flex flex-wrap justify-center gap-3 mb-16">
           {quickLinks.map((link, index) => (
             <button
@@ -137,7 +230,7 @@ export default function Homepage({ onNavigate }) {
           ))}
         </div>
 
-        {/* Popular Services */}
+        {/* Popular Services (No change) */}
         <div className="mb-16">
           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <span className="text-2xl">🔥</span>
@@ -148,7 +241,7 @@ export default function Homepage({ onNavigate }) {
               <div
                 key={index}
                 className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100 hover:border-green-200 group"
-                onClick={() => service.key && onNavigate(service.key)}
+                onClick={() => service.key && handleSuggestionClick(service.key)} // Use the new handler for navigation
               >
                 <div className={`w-16 h-16 bg-gradient-to-br ${service.color} rounded-xl flex items-center justify-center mb-4 text-white group-hover:scale-110 transition-transform shadow-lg`}>
                   {service.icon}
@@ -164,7 +257,7 @@ export default function Homepage({ onNavigate }) {
           </div>
         </div>
 
-        {/* Recent Guides */}
+        {/* Recent Guides (No change) */}
         <div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
           <h3 className="text-2xl font-bold text-gray-900 mb-6">آخر الأدلة المضافة</h3>
           <div className="space-y-4">
@@ -192,7 +285,7 @@ export default function Homepage({ onNavigate }) {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Footer (No change) */}
       <footer className="bg-gray-900 text-white mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
