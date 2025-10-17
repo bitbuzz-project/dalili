@@ -136,11 +136,11 @@ export default function PropertyTitleDetailsPage({ onBack }) {
                     })}
 				</div>
 
-				{/* Main Content */}
+				
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-					{/* Left Column */}
+					
 					<div className="lg:col-span-2 space-y-8">
-						{/* Documents Section */}
+					
 						<div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
 							<h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
 								<FileText className="w-6 h-6 text-cyan-600" />

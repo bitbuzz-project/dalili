@@ -128,11 +128,11 @@ export default function ActeDecesDetailsPage({ onBack }) {
                     })}
 				</div>
 
-				/* Main Content */
+				
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-					/* Left Column */
+					
 					<div className="lg:col-span-2 space-y-8">
-						/* Documents Section */
+					
 						<div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
 							<h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
 								<FileText className="w-6 h-6 text-gray-600" />
@@ -156,7 +156,7 @@ export default function ActeDecesDetailsPage({ onBack }) {
 							</div>
 						</div>
 
-						/* Steps Section */
+				
 						<div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
 							<h2 className="text-2xl font-bold text-gray-900 mb-6">خطوات الحصول على نسخة من رسم الوفاة</h2>
 							<div className="space-y-4">
@@ -182,7 +182,6 @@ export default function ActeDecesDetailsPage({ onBack }) {
 							</div>
 						</div>
 
-						/* FAQs Section */
 						<div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
 							<h2 className="text-2xl font-bold text-gray-900 mb-6">أسئلة شائعة</h2>
 							<div className="space-y-3">
@@ -210,9 +209,9 @@ export default function ActeDecesDetailsPage({ onBack }) {
 						</div>
 					</div>
 
-					/* Right Column - Sidebar */
+					
 					<div className="space-y-6">
-						/* Tips Card */
+						
 						<div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl shadow-md p-6 border border-orange-200 sticky top-24">
 							<div className="flex items-center gap-2 mb-4">
 								<AlertCircle className="w-6 h-6 text-orange-600" />
@@ -227,7 +226,7 @@ export default function ActeDecesDetailsPage({ onBack }) {
 								))}
 							</ul>
 						</div>
-                        /* Download Button */
+                     
 						<button className="w-full bg-gradient-to-r from-gray-600 to-neutral-600 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
 							<Download className="w-5 h-5" />
 							تحميل دليل خطوات الطلب PDF
@@ -236,7 +235,7 @@ export default function ActeDecesDetailsPage({ onBack }) {
 				</div>
 			</section>
 
-			/* Footer */
+	
 			<footer className="bg-gray-900 text-white mt-20">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 					<div className="text-center">

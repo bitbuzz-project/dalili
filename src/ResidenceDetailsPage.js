@@ -85,7 +85,7 @@ export default function ResidenceDetailsPage({ onBack }) {
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50" dir="rtl">
-			/* Header */
+			
 			<header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
 					<div className="flex items-center gap-4">
@@ -106,7 +106,7 @@ export default function ResidenceDetailsPage({ onBack }) {
 				</div>
 			</header>
 
-			/* Quick Info Cards */
+			
 			<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 				<div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                     {quickInfo.map((info, index) => {
@@ -133,11 +133,11 @@ export default function ResidenceDetailsPage({ onBack }) {
                     })}
 				</div>
 
-				/* Main Content */
+			
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-					/* Left Column */
+				
 					<div className="lg:col-span-2 space-y-8">
-						/* Documents Section */
+						
 						<div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
 							<h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
 								<FileText className="w-6 h-6 text-orange-600" />
@@ -161,7 +161,6 @@ export default function ResidenceDetailsPage({ onBack }) {
 							</div>
 						</div>
 
-						/* Steps Section */
 						<div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
 							<h2 className="text-2xl font-bold text-gray-900 mb-6">خطوات الحصول على الشهادة</h2>
 							<div className="space-y-4">
@@ -187,7 +186,7 @@ export default function ResidenceDetailsPage({ onBack }) {
 							</div>
 						</div>
 
-						/* FAQs Section */
+						
 						<div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
 							<h2 className="text-2xl font-bold text-gray-900 mb-6">أسئلة شائعة</h2>
 							<div className="space-y-3">
@@ -215,9 +214,8 @@ export default function ResidenceDetailsPage({ onBack }) {
 						</div>
 					</div>
 
-					/* Right Column - Sidebar */
 					<div className="space-y-6">
-						/* Tips Card */
+					
 						<div className="bg-gradient-to-br from-lime-50 to-emerald-50 rounded-2xl shadow-md p-6 border border-emerald-200 sticky top-24">
 							<div className="flex items-center gap-2 mb-4">
 								<AlertCircle className="w-6 h-6 text-emerald-600" />
@@ -232,7 +230,7 @@ export default function ResidenceDetailsPage({ onBack }) {
 								))}
 							</ul>
 						</div>
-                        /* Download Button */
+                  
 						<button className="w-full bg-gradient-to-r from-orange-600 to-amber-600 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
 							<Download className="w-5 h-5" />
 							تحميل قائمة الوثائق PDF
@@ -241,7 +239,6 @@ export default function ResidenceDetailsPage({ onBack }) {
 				</div>
 			</section>
 
-			/* Footer */
 			<footer className="bg-gray-900 text-white mt-20">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 					<div className="text-center">
