@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'; // Import useEffect
-import { Search, FileText, CreditCard, Car, Home, Users, Phone, MapPin, Clock, ChevronRight, Briefcase, GraduationCap } from 'lucide-react';
+import { Search, FileText, CreditCard, Car, Home, Users, Phone, MapPin, Clock, ChevronRight, Briefcase, GraduationCap, Star } from 'lucide-react'; // NEW: Import Star icon
 
 // قائمة بالوثائق المتاحة وكلماتها المفتاحية لتمكين البحث المرن
 const availableDocuments = [
@@ -94,6 +94,15 @@ const availableDocuments = [
         titleFr: 'Nearest Office Locator',
         color: 'from-amber-500 to-orange-600',
         icon: <MapPin className="w-8 h-8" />,
+    },
+    // NEW: Feedback/Rating Service
+    {
+        key: 'feedback',
+        titles: ['تقييم الخدمات', 'شكاوى', 'اقتراحات', 'rating', 'feedback', 'review'],
+        titleAr: 'تقييم الخدمات والإدارات',
+        titleFr: 'Service Rating',
+        color: 'from-pink-500 to-purple-600',
+        icon: <Star className="w-8 h-8" />,
     }
 ];
 
@@ -103,10 +112,11 @@ const searchableKeys = [
     'passport', 
     'acte_naissance', 
     'nearest_office', 
-    'contrat_location', // NEW
-    'cnss_affiliation', // NEW
-    'attestation_travail', // NEW
-    'bacalaureat' // NEW
+    'contrat_location', 
+    'cnss_affiliation', 
+    'attestation_travail', 
+    'bacalaureat',
+    'feedback' // NEW KEY ADDED
 ];
 
 
@@ -126,10 +136,11 @@ export default function Homepage({ onNavigate, views }) {
             'residence': '6,540',
             'ramed': '5,100',
             'nearest_office': '3,200',
-            'contrat_location': '4,500', // MOCK DATA for new document
-            'cnss_affiliation': '6,200', // MOCK DATA for new document
-            'attestation_travail': '7,150', // MOCK DATA for new document
-            'bacalaureat': '5,800', // MOCK DATA for new document
+            'contrat_location': '4,500', 
+            'cnss_affiliation': '6,200', 
+            'attestation_travail': '7,150', 
+            'bacalaureat': '5,800', 
+            'feedback': '1,500' // MOCK DATA for new document
         };
         // Simulate API delay
         const timer = setTimeout(() => {
@@ -140,6 +151,7 @@ export default function Homepage({ onNavigate, views }) {
     }, []);
 
     // نستخدم أول 6 وثائق فقط للعرض في قسم الخدمات الأكثر طلباً
+    // Adjusting slice to take the first 6 *before* the new 'feedback' item (which is at index 11)
     const popularServices = availableDocuments.slice(0, 6).map(doc => ({
         ...doc,
         title: doc.titleAr,
@@ -151,7 +163,8 @@ export default function Homepage({ onNavigate, views }) {
     const quickLinks = [
         { title: 'الوثائق المطلوبة', icon: <FileText className="w-5 h-5" />, key: 'cnie' },
         { title: 'أقرب إدارة', icon: <MapPin className="w-5 h-5" />, key: 'nearest_office' },
-        { title: 'حاسبة الرسوم', icon: <CreditCard className="w-5 h-5" />, key: 'cnie' },
+        // NEW QUICK LINK
+        { title: 'تقييم الخدمات', icon: <Star className="w-5 h-5" />, key: 'feedback' }, 
         { title: 'مواعيد العمل', icon: <Clock className="w-5 h-5" />, key: 'cnie' }
     ];
 
@@ -201,6 +214,7 @@ export default function Homepage({ onNavigate, views }) {
         // التحقق مما إذا كان المفتاح موجودًا في ثوابت المشاهدة (views)
         if (Object.values(views).includes(key)) {
             // تمرير المفتاح وبيانات الوثيقة (الاسم العربي والفرنسي) إلى صفحة التفاصيل
+            // Note: Use key for navigation, not doc.key for non-document pages like feedback
             onNavigate(key, { name: doc?.titleAr, nameFr: doc?.titleFr, documentName: doc?.titleAr });
             setSuggestions([]); // إخفاء الاقتراحات بعد النقر
             setSearchQuery(''); // مسح شريط البحث
@@ -265,7 +279,7 @@ export default function Homepage({ onNavigate, views }) {
                             type="text"
                             value={searchQuery}
                             onChange={handleInputChange} // Use the new handler
-                            placeholder="ابحث على أي إجراء إداري... (مثلاً: بطاقة، جواز، ميلاد...)"
+                            placeholder="ابحث على أي إجراء إداري... (مثلاً: بطاقة، جواز، ميلاد، تقييم...)"
                             className="w-full px-6 py-5 pr-14 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:outline-none shadow-lg text-lg"
                         />
                         <button type="submit" className="absolute right-0 top-0 h-full px-4 rounded-r-2xl text-gray-400 hover:text-green-600">
@@ -283,7 +297,12 @@ export default function Homepage({ onNavigate, views }) {
                                     className="flex items-center justify-between p-4 cursor-pointer hover:bg-green-50 transition-colors"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <FileText className={`w-5 h-5 ${searchableKeys.includes(doc.key) ? 'text-green-600' : 'text-gray-400'}`} />
+                                        {/* Use Star icon for feedback */}
+                                        {doc.key === 'feedback' ? 
+                                            <Star className={`w-5 h-5 ${searchableKeys.includes(doc.key) ? 'text-purple-600' : 'text-gray-400'}`} />
+                                            :
+                                            <FileText className={`w-5 h-5 ${searchableKeys.includes(doc.key) ? 'text-green-600' : 'text-gray-400'}`} />
+                                        }
                                         <div>
                                             <p className="font-medium text-gray-900">{doc.titleAr}</p>
                                             <p className="text-xs text-gray-500">{doc.titleFr}</p>
@@ -296,7 +315,7 @@ export default function Homepage({ onNavigate, views }) {
                     )}
                 </div>
 
-                {/* Quick Links */}
+                {/* Quick Links - NEW: Added Rating Link */}
                 <div className="flex flex-wrap justify-center gap-3 mb-16">
                     {quickLinks.map((link, index) => (
                         <button

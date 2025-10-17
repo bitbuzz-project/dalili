@@ -8,13 +8,14 @@ import ActeMariageDetailsPage from './ActeMariageDetailsPage';
 import ActeDecesDetailsPage from './ActeDecesDetailsPage';
 import ResidenceDetailsPage from './ResidenceDetailsPage';
 import PropertyTitleDetailsPage from './PropertyTitleDetailsPage';
-import NearestOfficePage from './NearestOfficePage'; // NEW IMPORT
-
+import NearestOfficePage from './NearestOfficePage';
 // New Document Imports (تمت الإضافة)
 import ContratLocationDetailsPage from './ContratLocationDetailsPage';
 import CNSSAffiliationDetailsPage from './CNSSAffiliationDetailsPage';
 import AttestationTravailDetailsPage from './AttestationTravailDetailsPage';
 import BaccalaureatDetailsPage from './BaccalaureatDetailsPage';
+// NEW: Import the Feedback Page
+import FeedbackPage from './FeedbackPage';
 
 // Define view constants for routing clarity
 const VIEWS = {
@@ -27,13 +28,15 @@ const VIEWS = {
   ACTE_DECES: 'acte_deces',
   RESIDENCE: 'residence',
   PROPERTY_TITLE: 'property_title',
-  NEAREST_OFFICE: 'nearest_office', // NEW VIEW ADDED
+  NEAREST_OFFICE: 'nearest_office',
   
   // New Document Views (تمت الإضافة)
   CONTRAT_LOCATION: 'contrat_location',
   CNSS_AFFILIATION: 'cnss_affiliation',
   ATTESTATION_TRAVAIL: 'attestation_travail',
   BACALAUREAT: 'bacalaureat',
+  // NEW: Feedback Page View
+  FEEDBACK: 'feedback', 
 };
 
 export default function App() {
@@ -67,7 +70,7 @@ export default function App() {
         return <ResidenceDetailsPage onBack={handleBack} />;
       case VIEWS.PROPERTY_TITLE:
         return <PropertyTitleDetailsPage onBack={handleBack} />;
-      case VIEWS.NEAREST_OFFICE: // EXISTING ROUTE
+      case VIEWS.NEAREST_OFFICE:
         return <NearestOfficePage onBack={handleBack} documentName={viewData.documentName} />;
 
       // New Document Pages (تمت الإضافة)
@@ -80,6 +83,10 @@ export default function App() {
       case VIEWS.BACALAUREAT:
         return <BaccalaureatDetailsPage onBack={handleBack} name={viewData.name} nameFr={viewData.nameFr} />;
 
+      // NEW: Feedback Page Route
+      case VIEWS.FEEDBACK:
+        return <FeedbackPage onBack={handleBack} />;
+        
       case VIEWS.HOME:
       default:
         // نستخدم handleNavigate بدلاً من setCurrentView لتمرير البيانات والتحكم في التنقل
