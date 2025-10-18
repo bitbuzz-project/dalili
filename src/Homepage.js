@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'; // Import useEffect
-import { Search, FileText, CreditCard, Car, Home, Users, Phone, MapPin, Clock, ChevronRight, Briefcase, GraduationCap, Star } from 'lucide-react'; // تم حذف Download
+import React, { useState, useEffect } from 'react';
+import { Search, FileText, CreditCard, Car, Home, Users, Phone, MapPin, Clock, ChevronRight, Briefcase, GraduationCap, Star, Landmark, Gavel, ChevronDown, ChevronUp } from 'lucide-react'; 
 
 // قائمة بالوثائق المتاحة وكلماتها المفتاحية لتمكين البحث المرن
 const availableDocuments = [
@@ -59,7 +59,7 @@ const availableDocuments = [
         titleAr: 'البطاقة الجبائية',
         titleFr: 'Identifiant Fiscal',
         color: 'from-purple-500 to-indigo-600',
-        icon: <Briefcase className="w-8 h-8" />,
+        icon: <Landmark className="w-8 h-8" />,
     },
     {
         key: 'casier_judiciaire',
@@ -67,7 +67,7 @@ const availableDocuments = [
         titleAr: 'السجل العدلي (حسن السيرة)',
         titleFr: 'Extrait de casier judiciaire',
         color: 'from-indigo-500 to-teal-600',
-        icon: <FileText className="w-8 h-8" />, // تم استبدال Gavel
+        icon: <Gavel className="w-8 h-8" />, // تم استخدام Gavel الآن
     },
     // --- Other Detailed Documents ---
     {
@@ -185,37 +185,160 @@ const searchableKeys = [
     'feedback'
 ];
 
+// **********************************************
+// Document Categorization based on Sector
+// **********************************************
+const documentCategories = {
+    'الهوية والجنسية (DGSN)': {
+        icon: <CreditCard className="w-6 h-6 text-blue-600" />,
+        docs: ['cnie', 'passport'],
+    },
+    'المركبات والسلامة الطرقية (NARSA)': {
+        icon: <Car className="w-6 h-6 text-red-600" />,
+        docs: ['permis_conduire', 'carte_grise', 'controle_technique'],
+    },
+    'الحالة المدنية (الجماعات المحلية)': {
+        icon: <Users className="w-6 h-6 text-pink-600" />,
+        docs: ['acte_naissance', 'acte_mariage', 'acte_deces'],
+    },
+    'السكن والعقار (ANCFCC / سلطات محلية)': {
+        icon: <Home className="w-6 h-6 text-orange-600" />,
+        docs: ['property_title', 'residence', 'contrat_location'],
+    },
+    'الضمان الاجتماعي والتشغيل (CNSS / المشغل)': {
+        icon: <Briefcase className="w-6 h-6 text-teal-600" />,
+        docs: ['cnss_affiliation', 'attestation_travail'],
+    },
+    'القضاء والوثائق القانونية (وزارة العدل)': {
+        icon: <Gavel className="w-6 h-6 text-indigo-600" />,
+        docs: ['casier_judiciaire'],
+    },
+    'التعليم والشهادات (وزارة التربية الوطنية)': {
+        icon: <GraduationCap className="w-6 h-6 text-amber-600" />,
+        docs: ['bacalaureat'],
+    },
+    'الضرائب والمعاملات المالية (DGI)': {
+        icon: <Landmark className="w-6 h-6 text-purple-600" />,
+        docs: ['attestation_fiscale'],
+    },
+    'خدمات أخرى ومواقع الإدارات': {
+        icon: <MapPin className="w-6 h-6 text-gray-600" />,
+        docs: ['nearest_office', 'feedback'],
+    },
+};
+
+// **********************************************
+// Component: AdministrativeCategories (Accordion Structure)
+// **********************************************
+const AdministrativeCategories = ({ categories, onDocumentClick, openCategory, onCategoryToggle }) => {
+    const allDocsMap = availableDocuments.reduce((acc, doc) => {
+        acc[doc.key] = doc;
+        return acc;
+    }, {});
+
+    return (
+        <div className="mb-16">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <Landmark className="w-6 h-6 text-purple-600" />
+                الفئات الإدارية
+            </h3>
+            
+            <div className="space-y-3">
+                {Object.entries(categories).map(([categoryTitle, categoryData], index) => {
+                    const isOpen = openCategory === categoryTitle;
+                    const isAnyDocumentAvailable = categoryData.docs.some(docKey => searchableKeys.includes(docKey));
+
+                    return (
+                        <div key={index} className="border border-gray-200 rounded-xl overflow-hidden shadow-md">
+                            {/* Category Header (Clickable Accordion Button) */}
+                            <button
+                                onClick={() => onCategoryToggle(categoryTitle)}
+                                className={`w-full flex items-center justify-between p-5 transition-all duration-300 ${isOpen ? 'bg-green-50' : 'bg-white hover:bg-gray-50'}`}
+                            >
+                                <div className="flex items-center gap-4">
+                                    {/* Icon and Title */}
+                                    {React.cloneElement(categoryData.icon, { 
+                                        className: `w-7 h-7 flex-shrink-0 ${isOpen ? 'text-green-700' : categoryData.icon.props.className}` 
+                                    })}
+                                    <span className={`font-bold text-xl text-right ${isOpen ? 'text-green-800' : 'text-gray-900'}`}>{categoryTitle}</span>
+                                </div>
+                                
+                                {/* Toggle Icon */}
+                                {isOpen ? (
+                                    <ChevronUp className="w-6 h-6 text-green-700 flex-shrink-0" />
+                                ) : (
+                                    <ChevronDown className="w-6 h-6 text-gray-600 flex-shrink-0" />
+                                )}
+                            </button>
+
+                            {/* Documents List (Collapsible Content) */}
+                            {isOpen && (
+                                <div className="p-6 bg-white border-t border-gray-100">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {categoryData.docs.map(docKey => {
+                                            const doc = allDocsMap[docKey];
+                                            if (!doc) return null;
+                                            const isAvailable = searchableKeys.includes(docKey);
+
+                                            return (
+                                                <button
+                                                    key={doc.key}
+                                                    onClick={() => isAvailable ? onDocumentClick(doc.key) : alert(`عفواً، لا تتوفر صفحة تفصيلية لـ ${doc.titleAr} بعد.`)}
+                                                    className={`group flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 text-right w-full min-h-[70px]
+                                                        ${isAvailable
+                                                            ? 'bg-white border-green-200 hover:bg-green-100 cursor-pointer'
+                                                            : 'bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed'
+                                                        }`}
+                                                    disabled={!isAvailable}
+                                                >
+                                                    <div className="flex flex-col items-start gap-1">
+                                                        <p className={`font-semibold text-base ${isAvailable ? 'text-gray-900 group-hover:text-green-700' : 'text-gray-600'}`}>{doc.titleAr}</p>
+                                                        <p className="text-xs text-gray-500">{doc.titleFr}</p>
+                                                    </div>
+                                                    <ChevronRight className={`w-5 h-5 flex-shrink-0 ${isAvailable ? 'text-green-600 group-hover:translate-x-1' : 'text-gray-400'}`} />
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    {!isAnyDocumentAvailable && (
+                                        <p className="mt-4 text-center text-sm text-gray-500">
+                                            لا تتوفر وثائق مفصلة في هذه الفئة بعد.
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+// **********************************************
+// Main Homepage Component
+// **********************************************
 
 export default function Homepage({ onNavigate, views }) {
     const [searchQuery, setSearchQuery] = useState('');
-    const [suggestions, setSuggestions] = useState([]); // New state for suggestions
-    const [serviceCounts, setServiceCounts] = useState({}); // New state for dynamic counts
+    const [suggestions, setSuggestions] = useState([]);
+    const [serviceCounts, setServiceCounts] = useState({});
+    const [openCategory, setOpenCategory] = useState(null); // State for the accordion/categories
 
-    // Simulated data fetching (replace with real API call to fetch /api/service-counts)
+    // Toggle logic for the categories accordion
+    const handleCategoryToggle = (categoryTitle) => {
+        setOpenCategory(prev => prev === categoryTitle ? null : categoryTitle);
+    };
+
+    // Simulated data fetching (useEffect remains the same)
     useEffect(() => {
-        // MOCK DATA for demonstration:
         const mockCounts = {
-            'cnie': '12,450',
-            'passport': '9,120',
-            'acte_naissance': '7,880',
-            'contrat_location': '4,500', 
-            'cnss_affiliation': '6,200', 
-            'attestation_travail': '7,150', 
-            'bacalaureat': '5,800', 
-            
-            // MOCK DATA for NEW 5 Documents
-            'permis_conduire': '10,050', // Reusing placeholder count
-            'carte_grise': '9,500', 
-            'controle_technique': '8,200', 
-            'attestation_fiscale': '5,300', 
-            'casier_judiciaire': '6,000', 
-
-            'residence': '6,540',
-            'ramed': '5,100',
-            'nearest_office': '3,200',
-            'feedback': '1,500' 
+            'cnie': '12,450', 'passport': '9,120', 'acte_naissance': '7,880', 'contrat_location': '4,500', 
+            'cnss_affiliation': '6,200', 'attestation_travail': '7,150', 'bacalaureat': '5,800', 
+            'permis_conduire': '10,050', 'carte_grise': '9,500', 'controle_technique': '8,200', 
+            'attestation_fiscale': '5,300', 'casier_judiciaire': '6,000', 'residence': '6,540',
+            'ramed': '5,100', 'nearest_office': '3,200', 'feedback': '1,500' 
         };
-        // Simulate API delay
         const timer = setTimeout(() => {
             setServiceCounts(mockCounts);
         }, 500);
@@ -223,44 +346,27 @@ export default function Homepage({ onNavigate, views }) {
         return () => clearTimeout(timer);
     }, []);
 
-    // نستخدم أول 6 وثائق فقط للعرض في قسم الخدمات الأكثر طلباً
-    // Updated slice logic to take the first 6 elements which now include the new ones
     const popularServices = availableDocuments.slice(0, 6).map(doc => ({
         ...doc,
         title: doc.titleAr,
         icon: doc.icon,
-        // Use dynamic counts from state
         searches: serviceCounts[doc.key] || 'جاري التحميل...'
     }));
 
     const quickLinks = [
         { title: 'الوثائق المطلوبة', icon: <FileText className="w-5 h-5" />, key: 'cnie' },
         { title: 'أقرب إدارة', icon: <MapPin className="w-5 h-5" />, key: 'nearest_office' },
-        // NEW QUICK LINK
         { title: 'تقييم الخدمات', icon: <Star className="w-5 h-5" />, key: 'feedback' }, 
         { title: 'مواعيد العمل', icon: <Clock className="w-5 h-5" />, key: 'cnie' }
     ];
 
     const recentGuides = [
-        {
-            title: 'كيفاش تستخرج بطاقة التعريف؟',
-            duration: '5 دقائق قراءة',
-            views: '2.3k'
-        },
-        {
-            title: 'شنو الوثائق لي خاصك لجواز السفر؟',
-            duration: '4 دقائق قراءة',
-            views: '1.8k'
-        },
-        // Changed placeholder guide to a new document guide
-        {
-            title: 'خطوات تجديد رخصة السياقة',
-            duration: '7 دقائق قراءة',
-            views: '3.1k'
-        }
+        { title: 'كيفاش تستخرج بطاقة التعريف؟', duration: '5 دقائق قراءة', views: '2.3k' },
+        { title: 'شنو الوثائق لي خاصك لجواز السفر؟', duration: '4 دقائق قراءة', views: '1.8k' },
+        { title: 'خطوات تجديد رخصة السياقة', duration: '7 دقائق قراءة', views: '3.1k' }
     ];
 
-    // دالة لمعالجة التغيير في شريط البحث وإظهار الاقتراحات
+    // Search and Navigation Logic (remains the same)
     const handleInputChange = (e) => {
         const query = e.target.value;
         setSearchQuery(query);
@@ -272,7 +378,6 @@ export default function Homepage({ onNavigate, views }) {
                     doc.titles.some(title => title.toLowerCase().includes(lowerQuery)) ||
                     doc.titleFr.toLowerCase().includes(lowerQuery)
                 )
-                // عرض 5 اقتراحات كحد أقصى
                 .slice(0, 5);
 
             setSuggestions(filteredSuggestions);
@@ -281,17 +386,13 @@ export default function Homepage({ onNavigate, views }) {
         }
     };
 
-    // دالة للتنقل عند النقر على الاقتراح
     const handleSuggestionClick = (key) => {
         const doc = availableDocuments.find(d => d.key === key);
 
-        // التحقق مما إذا كان المفتاح موجودًا في ثوابت المشاهدة (views)
         if (Object.values(views).includes(key)) {
-            // تمرير المفتاح وبيانات الوثيقة (الاسم العربي والفرنسي) إلى صفحة التفاصيل
-            // Note: Use key for navigation, not doc.key for non-document pages like feedback
             onNavigate(key, { name: doc?.titleAr, nameFr: doc?.titleFr, documentName: doc?.titleAr });
-            setSuggestions([]); // إخفاء الاقتراحات بعد النقر
-            setSearchQuery(''); // مسح شريط البحث
+            setSuggestions([]);
+            setSearchQuery('');
         } else {
             alert(`عفواً، لا تتوفر صفحة تفصيلية لـ ${doc?.titleAr || key} بعد.`);
             setSuggestions([]);
@@ -299,11 +400,9 @@ export default function Homepage({ onNavigate, views }) {
         }
     };
 
-    // دالة لمعالجة ضغط زر Enter (البحث الرئيسي)
     const handleSearch = (e) => {
         e.preventDefault();
         if (suggestions.length > 0) {
-            // إذا كان هناك اقتراحات، نذهب إلى أول نتيجة
             handleSuggestionClick(suggestions[0].key);
         } else {
             alert(`عفواً، لم يتم العثور على نتائج مطابقة لـ "${searchQuery}". الرجاء المحاولة بكلمة مختلفة.`);
@@ -431,6 +530,14 @@ export default function Homepage({ onNavigate, views }) {
                     </div>
                 </div>
 
+                {/* NEW: Administrative Categories Section (using the Accordion component) */}
+                <AdministrativeCategories 
+                    categories={documentCategories} 
+                    onDocumentClick={handleSuggestionClick} 
+                    openCategory={openCategory}
+                    onCategoryToggle={handleCategoryToggle}
+                />
+                
                 {/* Recent Guides (Updated Guide Title) */}
                 <div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
                     <h3 className="text-2xl font-bold text-gray-900 mb-6">آخر الأدلة المضافة</h3>
