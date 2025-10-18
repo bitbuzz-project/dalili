@@ -1,9 +1,75 @@
 import React, { useState, useEffect } from 'react'; // Import useEffect
-import { Search, FileText, CreditCard, Car, Home, Users, Phone, MapPin, Clock, ChevronRight, Briefcase, GraduationCap, Star } from 'lucide-react'; // NEW: Import Star icon
+import { Search, FileText, CreditCard, Car, Home, Users, Phone, MapPin, Clock, ChevronRight, Briefcase, GraduationCap, Star } from 'lucide-react'; // تم حذف Download
 
 // قائمة بالوثائق المتاحة وكلماتها المفتاحية لتمكين البحث المرن
 const availableDocuments = [
-    // --- New Documents Added ---
+    // --- Essential Documents ---
+    {
+        key: 'cnie',
+        titles: ['بطاقة التعريف', 'بطاقة التعريف الوطنية', 'carte d\'identité', 'cnie', 'بطاقة', 'تعريف', 'وطنية'],
+        titleAr: 'بطاقة التعريف الوطنية',
+        titleFr: "Carte d'identité nationale",
+        color: 'from-blue-500 to-blue-600',
+        icon: <CreditCard className="w-8 h-8" />,
+    },
+    {
+        key: 'passport',
+        titles: ['جواز السفر', 'جواز السفر البيومتري', 'passeport', 'سفر', 'جواز', 'بيومتري'],
+        titleAr: 'جواز السفر البيومتري',
+        titleFr: 'Passeport Biométrique',
+        color: 'from-green-500 to-green-600',
+        icon: <FileText className="w-8 h-8" />,
+    },
+    {
+        key: 'acte_naissance',
+        titles: ['عقد الميلاد', 'شهادة الميلاد', 'acte de naissance', 'ميلاد', 'ازدياد', 'عقد', 'نسخة كاملة'],
+        titleAr: 'عقد/شهادة الميلاد',
+        titleFr: 'Acte de naissance',
+        color: 'from-pink-500 to-pink-600',
+        icon: <Users className="w-8 h-8" />,
+    },
+    // --- NEW 5 Documents Integrated (Updated Icons) ---
+    {
+        key: 'permis_conduire',
+        titles: ['رخصة السياقة', 'permis de conduire', 'سياقة', 'رخصة', 'بيرمي'],
+        titleAr: 'رخصة السياقة (تجديد)',
+        titleFr: 'Permis de conduire',
+        color: 'from-yellow-500 to-amber-600',
+        icon: <Car className="w-8 h-8" />,
+    },
+    {
+        key: 'carte_grise',
+        titles: ['البطاقة الرمادية', 'شهادة التسجيل', 'carte grise', 'تسجيل مركبة', 'رمادية'],
+        titleAr: 'البطاقة الرمادية',
+        titleFr: 'Carte Grise (Certificat d\'immatriculation)',
+        color: 'from-gray-500 to-gray-600',
+        icon: <CreditCard className="w-8 h-8" />,
+    },
+    {
+        key: 'controle_technique',
+        titles: ['الفحص التقني', 'visite technique', 'controle technique', 'فحص', 'تقني'],
+        titleAr: 'شهادة الفحص التقني',
+        titleFr: 'Contrôle technique',
+        color: 'from-red-500 to-red-600',
+        icon: <Car className="w-8 h-8" />, // تم استبدال Tool
+    },
+    {
+        key: 'attestation_fiscale',
+        titles: ['البطاقة الجبائية', 'الرقم الضريبي', 'identifiant fiscal', 'attestation fiscale', 'ضرائب', 'DGI'],
+        titleAr: 'البطاقة الجبائية',
+        titleFr: 'Identifiant Fiscal',
+        color: 'from-purple-500 to-indigo-600',
+        icon: <Briefcase className="w-8 h-8" />,
+    },
+    {
+        key: 'casier_judiciaire',
+        titles: ['السجل العدلي', 'حسن السيرة', 'casier judiciaire', 'سجل', 'عدلي'],
+        titleAr: 'السجل العدلي (حسن السيرة)',
+        titleFr: 'Extrait de casier judiciaire',
+        color: 'from-indigo-500 to-teal-600',
+        icon: <FileText className="w-8 h-8" />, // تم استبدال Gavel
+    },
+    // --- Other Detailed Documents ---
     {
         key: 'contrat_location',
         titles: ['عقد الكراء', 'وصل الكراء', 'كراء', 'عقد', 'location', 'contrat de location', 'quittance de loyer'],
@@ -36,39 +102,22 @@ const availableDocuments = [
         color: 'from-amber-500 to-amber-600',
         icon: <GraduationCap className="w-8 h-8" />,
     },
-    // --- Existing Documents (kept below new ones) ---
+    // --- Placeholders/General Services ---
     {
-        key: 'cnie',
-        titles: ['بطاقة التعريف', 'بطاقة التعريف الوطنية', 'carte d\'identité', 'cnie', 'بطاقة', 'تعريف', 'وطنية'],
-        titleAr: 'بطاقة التعريف الوطنية',
-        titleFr: "Carte d'identité nationale",
-        color: 'from-blue-500 to-blue-600',
-        icon: <CreditCard className="w-8 h-8" />,
-    },
-    {
-        key: 'passport',
-        titles: ['جواز السفر', 'جواز السفر البيومتري', 'passeport', 'سفر', 'جواز', 'بيومتري'],
-        titleAr: 'جواز السفر البيومتري',
-        titleFr: 'Passeport Biométrique',
-        color: 'from-green-500 to-green-600',
-        icon: <FileText className="w-8 h-8" />,
-    },
-    {
-        key: 'acte_naissance',
-        titles: ['عقد الميلاد', 'شهادة الميلاد', 'acte de naissance', 'ميلاد', 'ازدياد', 'عقد', 'نسخة كاملة'],
-        titleAr: 'عقد/شهادة الميلاد',
-        titleFr: 'Acte de naissance',
-        color: 'from-pink-500 to-pink-600',
+        key: 'acte_mariage',
+        titles: ['عقد الزواج', 'شهادة الزواج', 'acte de mariage', 'زواج', 'عقد'],
+        titleAr: 'عقد/شهادة الزواج',
+        titleFr: 'Acte de mariage',
+        color: 'from-yellow-500 to-yellow-600',
         icon: <Users className="w-8 h-8" />,
     },
-    // خدمات أخرى (للبحث فقط حتى يتم إنشاء صفحاتها)
     {
-        key: 'permis_conduire',
-        titles: ['رخصة السياقة', 'permis de conduire', 'سياقة', 'رخصة'],
-        titleAr: 'رخصة السياقة',
-        titleFr: 'Permis de conduire',
-        color: 'from-purple-500 to-purple-600',
-        icon: <Car className="w-8 h-8" />,
+        key: 'acte_deces',
+        titles: ['عقد الوفاة', 'شهادة الوفاة', 'acte de décès', 'وفاة', 'عقد'],
+        titleAr: 'عقد/شهادة الوفاة',
+        titleFr: 'Acte de décès',
+        color: 'from-gray-500 to-gray-600',
+        icon: <FileText className="w-8 h-8" />,
     },
     {
         key: 'residence',
@@ -79,6 +128,14 @@ const availableDocuments = [
         icon: <Home className="w-8 h-8" />,
     },
     {
+        key: 'property_title',
+        titles: ['تحفيظ عقاري', 'رسم عقاري', 'titre foncier', 'عقار', 'محافظة', 'عقار'],
+        titleAr: 'الرسم العقاري',
+        titleFr: 'Titre Foncier',
+        color: 'from-brown-500 to-brown-600',
+        icon: <Home className="w-8 h-8" />,
+    },
+    {
         key: 'ramed',
         titles: ['الرميد', 'ramed', 'assurance médicale'],
         titleAr: 'الرميد RAMED',
@@ -86,7 +143,7 @@ const availableDocuments = [
         color: 'from-red-500 to-red-600',
         icon: <Phone className="w-8 h-8" />,
     },
-    // New entry for Nearest Office Locator
+    // General Services
     {
         key: 'nearest_office',
         titles: ['أقرب إدارة', 'موقع الإدارات', 'مكان الإدارة', 'nearest office', 'locator', 'map'],
@@ -95,7 +152,6 @@ const availableDocuments = [
         color: 'from-amber-500 to-orange-600',
         icon: <MapPin className="w-8 h-8" />,
     },
-    // NEW: Feedback/Rating Service
     {
         key: 'feedback',
         titles: ['تقييم الخدمات', 'شكاوى', 'اقتراحات', 'rating', 'feedback', 'review'],
@@ -111,12 +167,22 @@ const searchableKeys = [
     'cnie', 
     'passport', 
     'acte_naissance', 
-    'nearest_office', 
+    'acte_mariage', 
+    'acte_deces',   
+    'residence',    
+    'property_title',
     'contrat_location', 
     'cnss_affiliation', 
     'attestation_travail', 
     'bacalaureat',
-    'feedback' // NEW KEY ADDED
+    // NEW 5 Documents Keys
+    'permis_conduire',
+    'carte_grise',
+    'controle_technique',
+    'attestation_fiscale',
+    'casier_judiciaire',
+    'nearest_office', 
+    'feedback'
 ];
 
 
@@ -132,15 +198,22 @@ export default function Homepage({ onNavigate, views }) {
             'cnie': '12,450',
             'passport': '9,120',
             'acte_naissance': '7,880',
-            'permis_conduire': '10,050',
-            'residence': '6,540',
-            'ramed': '5,100',
-            'nearest_office': '3,200',
             'contrat_location': '4,500', 
             'cnss_affiliation': '6,200', 
             'attestation_travail': '7,150', 
             'bacalaureat': '5,800', 
-            'feedback': '1,500' // MOCK DATA for new document
+            
+            // MOCK DATA for NEW 5 Documents
+            'permis_conduire': '10,050', // Reusing placeholder count
+            'carte_grise': '9,500', 
+            'controle_technique': '8,200', 
+            'attestation_fiscale': '5,300', 
+            'casier_judiciaire': '6,000', 
+
+            'residence': '6,540',
+            'ramed': '5,100',
+            'nearest_office': '3,200',
+            'feedback': '1,500' 
         };
         // Simulate API delay
         const timer = setTimeout(() => {
@@ -151,7 +224,7 @@ export default function Homepage({ onNavigate, views }) {
     }, []);
 
     // نستخدم أول 6 وثائق فقط للعرض في قسم الخدمات الأكثر طلباً
-    // Adjusting slice to take the first 6 *before* the new 'feedback' item (which is at index 11)
+    // Updated slice logic to take the first 6 elements which now include the new ones
     const popularServices = availableDocuments.slice(0, 6).map(doc => ({
         ...doc,
         title: doc.titleAr,
@@ -179,8 +252,9 @@ export default function Homepage({ onNavigate, views }) {
             duration: '4 دقائق قراءة',
             views: '1.8k'
         },
+        // Changed placeholder guide to a new document guide
         {
-            title: 'خطوات الحصول على رخصة السياقة',
+            title: 'خطوات تجديد رخصة السياقة',
             duration: '7 دقائق قراءة',
             views: '3.1k'
         }
@@ -330,7 +404,7 @@ export default function Homepage({ onNavigate, views }) {
                     ))}
                 </div>
 
-                {/* Popular Services (Only showing first 6 for visual consistency, Nearest Office is not considered "popular" yet) */}
+                {/* Popular Services (Only showing first 6 for visual consistency) */}
                 <div className="mb-16">
                     <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                         <span className="text-2xl">🔥</span>
@@ -357,7 +431,7 @@ export default function Homepage({ onNavigate, views }) {
                     </div>
                 </div>
 
-                {/* Recent Guides (No change) */}
+                {/* Recent Guides (Updated Guide Title) */}
                 <div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
                     <h3 className="text-2xl font-bold text-gray-900 mb-6">آخر الأدلة المضافة</h3>
                     <div className="space-y-4">

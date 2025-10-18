@@ -14,6 +14,12 @@ import ContratLocationDetailsPage from './ContratLocationDetailsPage';
 import CNSSAffiliationDetailsPage from './CNSSAffiliationDetailsPage';
 import AttestationTravailDetailsPage from './AttestationTravailDetailsPage';
 import BaccalaureatDetailsPage from './BaccalaureatDetailsPage';
+// NEW 5 Documents Imports
+import PermisDeConduireDetailsPage from './PermisDeConduireDetailsPage';
+import CarteGriseDetailsPage from './CarteGriseDetailsPage';
+import ControleTechniqueDetailsPage from './ControleTechniqueDetailsPage';
+import AttestationFiscaleDetailsPage from './AttestationFiscaleDetailsPage';
+import CasierJudiciaireDetailsPage from './CasierJudiciaireDetailsPage';
 // NEW: Import the Feedback Page
 import FeedbackPage from './FeedbackPage';
 
@@ -35,6 +41,14 @@ const VIEWS = {
   CNSS_AFFILIATION: 'cnss_affiliation',
   ATTESTATION_TRAVAIL: 'attestation_travail',
   BACALAUREAT: 'bacalaureat',
+  
+  // NEW 5 Documents Views
+  PERMIS_CONDUIRE: 'permis_conduire',
+  CARTE_GRISE: 'carte_grise',
+  CONTROLE_TECHNIQUE: 'controle_technique',
+  ATTESTATION_FISCALE: 'attestation_fiscale',
+  CASIER_JUDICIAIRE: 'casier_judiciaire',
+
   // NEW: Feedback Page View
   FEEDBACK: 'feedback', 
 };
@@ -82,6 +96,18 @@ export default function App() {
         return <AttestationTravailDetailsPage onBack={handleBack} name={viewData.name} nameFr={viewData.nameFr} />;
       case VIEWS.BACALAUREAT:
         return <BaccalaureatDetailsPage onBack={handleBack} name={viewData.name} nameFr={viewData.nameFr} />;
+
+      // NEW 5 Document Pages
+      case VIEWS.PERMIS_CONDUIRE:
+        return <PermisDeConduireDetailsPage onBack={handleBack} name={viewData.name} nameFr={viewData.nameFr} />;
+      case VIEWS.CARTE_GRISE:
+        return <CarteGriseDetailsPage onBack={handleBack} name={viewData.name} nameFr={viewData.nameFr} />;
+      case VIEWS.CONTROLE_TECHNIQUE:
+        return <ControleTechniqueDetailsPage onBack={handleBack} name={viewData.name} nameFr={viewData.nameFr} />;
+      case VIEWS.ATTESTATION_FISCALE:
+        return <AttestationFiscaleDetailsPage onBack={handleBack} name={viewData.name} nameFr={viewData.nameFr} />;
+      case VIEWS.CASIER_JUDICIAIRE:
+        return <CasierJudiciaireDetailsPage onBack={handleBack} name={viewData.name} nameFr={viewData.nameFr} />;
 
       // NEW: Feedback Page Route
       case VIEWS.FEEDBACK:
